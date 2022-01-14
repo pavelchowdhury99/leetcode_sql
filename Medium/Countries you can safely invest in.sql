@@ -175,10 +175,16 @@ left join caller_country cc
 on c.callee_id = cc.id
 )
 
-select country 
-from caller_country_duration
-group by country
-having 
-AVG(duration)>(select avg(duration) from caller_country_duration)
-; 
 
+select country
+from 
+(select DISTINCT country ,
+avg(duration) over(partition by country) as country_average,
+avg(duration) over() as global_average
+from caller_country_duration
+--group by country
+--having 
+--AVG(duration)>(select avg(duration) from caller_country_duration)
+)
+where country_average>global_average
+; 
